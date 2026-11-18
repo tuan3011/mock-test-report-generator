@@ -15,10 +15,10 @@ Mục tiêu chính: **Tối thiểu hóa thao tác viết thủ công của giá
   - Trạng thái: `Chưa tạo (NOT_GENERATED)` → `Bản nháp (DRAFT)` → `Cần xem lại (NEEDS_REVIEW)` → `Đã duyệt (APPROVED)`.
   - Giáo viên kiểm soát 100% nội dung. Khi nội dung đã duyệt bị chỉnh sửa, hệ thống tự động yêu cầu duyệt lại.
   - Chặn xuất báo cáo DOCX nếu còn bất kỳ mục nào chưa được phê duyệt.
-- **Thang điểm Mock Test 0–10:** Hỗ trợ nhập và hiển thị điểm số thập phân (ví dụ: `6.5`, `7.25`, `8.75`).
+- **Thang điểm Mock Test 0–100:** Hỗ trợ nhập và hiển thị điểm số thập phân (ví dụ: `45`, `72.5`, `85.75`, `100`).
 - **10 nhóm tiêu chí đánh giá chuẩn:** Với 5 mức độ đánh giá cụ thể (Rất tốt, Tốt, Khá ổn, Cần cải thiện, Chưa thể hiện được).
-- **Gemini AI thông minh:**
-  - Mục 1: Nhận xét quá trình học xưng "con", dựa trên tiêu chí được đánh giá, không tự bịa đặt kỹ năng hay thay đổi điểm số.
+- **Gemini AI thông minh & Văn phong chuẩn sư phạm:**
+  - Mục 1: Nhận xét quá trình học chuẩn mực, bắt buộc xưng hô "bạn" (không dùng con/em), dựa trên tiêu chí được đánh giá, bảo toàn điểm số thang 100, không tự bịa đặt kỹ năng hay thay đổi điểm số.
   - Mục 2: Tổng hợp trung thực các hành động giáo viên đã thực hiện và nêu rõ trường hợp chưa kịp trao đổi.
   - Mục 3: Đề xuất giải pháp phân theo đối tượng (học viên, lớp học, trung tâm).
 - **Chuẩn hóa tên tệp tải về:** `{CLASS_NAME}_{TEACHER_NAME}_bao-cao-mock-test.docx` (ví dụ: `KIDS-05_Nguyen-Thi-Lan_bao-cao-mock-test.docx`).
@@ -29,7 +29,7 @@ Mục tiêu chính: **Tối thiểu hóa thao tác viết thủ công của giá
 
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4.
 - **Xử lý tài liệu Word:** `docxtemplater`, `pizzip`.
-- **Trí tuệ nhân tạo (AI):** Google Gemini API (`@google/genai` SDK - model `gemini-3.8-flash`).
+- **Trí tuệ nhân tạo (AI):** Google Gemini API (`@google/genai` SDK - model mặc định `gemini-3.5-flash-lite` siêu tốc ~1s, kèm cơ chế tự động fallback chống lỗi 503 và tính năng tạo mẫu nhanh offline).
 - **Backend / API:** Vercel Serverless Functions (`api/generate-student-comment.ts`, `api/generate-support-summary.ts`, `api/generate-recommendations.ts`).
 - **Icons & UI:** `lucide-react`.
 
@@ -71,8 +71,8 @@ Tạo tệp `.env` (hoặc `.env.local`) từ `.env.example`:
 # Google Gemini API Key
 GEMINI_API_KEY=your_gemini_api_key_here
 
-# Model Gemini sử dụng (Mặc định: gemini-3.8-flash)
-GEMINI_MODEL=gemini-3.8-flash
+# Model Gemini sử dụng (Mặc định: gemini-3.5-flash-lite)
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 > **Mẹo tiện lợi:** Bạn cũng có thể cấu hình API Key trực tiếp trong giao diện ứng dụng bằng cách nhấn nút **"API Key"** ở góc trên bên phải màn hình.
 
@@ -83,7 +83,7 @@ npm run dev
 Truy cập ứng dụng tại: `http://localhost:5173`
 
 ### Bước 4: Kiểm thử tự động
-Chạy bộ kiểm thử toàn diện 41 kịch bản:
+Chạy bộ kiểm thử toàn diện 49 kịch bản:
 ```bash
 npx tsx scripts/test-workflow.js
 ```
@@ -97,22 +97,20 @@ npm run build
 
 ## 5. HƯỚNG DẪN TRIỂN KHAI LÊN VERCEL (DEPLOYMENT)
 
-Ứng dụng được thiết kế tương thích hoàn toàn với nền tảng Vercel:
+Repository GitHub chính thức: [https://github.com/tuan3011/mock-test-report-generator](https://github.com/tuan3011/mock-test-report-generator)
 
-1. Đẩy mã nguồn lên kho lưu trữ GitHub của bạn:
-   ```bash
-   git init
-   git add .
-   git commit -m "feat: Mock Test Report Generator completed"
-   git remote add origin <URL_REPO_CUA_BAN>
-   git push -u origin main
-   ```
-2. Đăng nhập vào [Vercel Dashboard](https://vercel.com) và chọn **"Add New Project"**.
-3. Chọn Repository vừa tạo trên GitHub.
-4. Trong mục **Environment Variables**, thêm:
-   - `GEMINI_API_KEY`: Khóa API Gemini của bạn.
-   - `GEMINI_MODEL`: `gemini-3.8-flash` (tùy chọn).
-5. Nhấn **Deploy**. Vercel sẽ tự động build ứng dụng và cung cấp URL production hoạt động trực tuyến.
+1. Truy cập [Vercel Dashboard](https://vercel.com) và chọn **"Add New Project"** (hoặc Import Git Repository).
+2. Tìm và chọn repository `mock-test-report-generator` (tài khoản GitHub `tuan3011`).
+3. Trong phần cấu hình dự án:
+   - **Framework Preset**: Chọn `Vite` (Vercel tự động nhận diện).
+   - **Root Directory**: Để trống `./`.
+   - **Build Command**: `npm run build`.
+   - **Output Directory**: `dist`.
+4. Trong mục **Environment Variables** (Biến môi trường), thêm:
+   - `GEMINI_API_KEY`: Khóa API Gemini của bạn (lấy tại [Google AI Studio](https://aistudio.google.com/app/apikey)).
+   - `GEMINI_MODEL`: `gemini-3.5-flash-lite` (hoặc để trống, hệ thống tự lấy mặc định).
+5. Nhấn nút **Deploy**.
+   Vercel sẽ tự động build ứng dụng và cung cấp domain trực tuyến (ví dụ: `https://mock-test-report-generator.vercel.app`).
 
 ---
 
@@ -121,9 +119,9 @@ npm run build
 1. **Bước 1 - Thông tin báo cáo:** Nhập Tên lớp, Giáo viên phụ trách, chọn Kỹ năng phụ trách và Tháng báo cáo.
 2. **Bước 2 - Học viên cần quan tâm:**
    - Nhấn **"+ Thêm học viên"**.
-   - Nhập Họ tên và Điểm Mock Test (thang 0–10, ví dụ: 6.5, 7.25).
+   - Nhập Họ tên và Điểm Mock Test (thang 0–100, ví dụ: 72.5, 85.75).
    - Đánh giá các tiêu chí theo 10 nhóm (chọn mức từ 1 đến 5).
-   - Nhấn **"Tạo nhận xét AI"** → Gemini AI viết đoạn nhận xét xưng "con".
+   - Nhấn **"Tạo nhận xét AI"** → Gemini AI viết đoạn nhận xét chuẩn mực, xưng hô "bạn" (hoặc nhấn "Mẫu nhanh" nếu muốn có nhận xét ngay lập tức không cần AI).
    - Giáo viên đọc, chỉnh sửa (nếu cần) và nhấn **"Duyệt nhận xét này"**.
 3. **Bước 3 - Hoạt động hỗ trợ:**
    - Tích chọn các hành động giáo viên đã thực hiện trên lớp / với học viên.
