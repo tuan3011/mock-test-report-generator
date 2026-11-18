@@ -28,8 +28,8 @@ function getApiKey(customKey?: string): string {
   return key;
 }
 
-function getModelName(): string {
-  return process.env.GEMINI_MODEL?.trim() || 'gemini-3.8-flash';
+function getPreferredModel(): string {
+  return process.env.GEMINI_MODEL?.trim() || 'gemini-3.5-flash-lite';
 }
 
 function cleanJsonResponse(rawText: string): any {
@@ -43,13 +43,102 @@ function cleanJsonResponse(rawText: string): any {
 }
 
 /**
+ * Executes a Gemini request with automatic fallback across models and retry on 503/429
+ */
+async function callGeminiWithFallback(
+  ai: GoogleGenAI,
+  preferredModel: string,
+  prompt: string,
+  systemInstruction: string
+): Promise<string> {
+  // Ordered candidate models: prioritized by high availability and low latency
+  const candidateModels = Array.from(
+    new Set([
+      preferredModel,
+      'gemini-3.5-flash-lite',
+      'gemini-2.5-flash-lite',
+      'gemini-3.1-flash-lite',
+      'gemini-3.8-flash',
+    ])
+  ).filter(Boolean);
+
+  let lastError: any = null;
+
+  for (const model of candidateModels) {
+    // Attempt up to 2 times per model if 503/429
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            systemInstruction,
+            responseMimeType: 'application/json',
+          },
+        });
+
+        if (response.text) {
+          return response.text;
+        }
+      } catch (err: any) {
+        lastError = err;
+        const errMsg = err?.message || '';
+
+        // If error is 503 (High demand) or 429 (Rate limit), wait a brief moment and retry or switch model
+        const isTransient =
+          errMsg.includes('503') ||
+          errMsg.includes('UNAVAILABLE') ||
+          errMsg.includes('429') ||
+          errMsg.includes('RESOURCE_EXHAUSTED');
+
+        if (isTransient && attempt === 1) {
+          await new Promise((resolve) => setTimeout(resolve, 800));
+          continue; // retry this model once
+        }
+
+        // Otherwise break out of retry loop to try next model in waterfall
+        break;
+      }
+    }
+  }
+
+  // If all candidate models failed, craft a helpful Vietnamese message
+  const rawMsg = lastError?.message || '';
+  if (rawMsg.includes('503') || rawMsg.includes('high demand') || rawMsg.includes('UNAVAILABLE')) {
+    throw new GeminiServiceError(
+      'Mô hình AI của Google hiện đang quá tải tạm thời (Lỗi 503: High Demand). Vui lòng thử lại sau giây lát hoặc sử dụng tính năng "Tạo nhận xét nhanh theo tiêu chí".',
+      503
+    );
+  }
+
+  if (rawMsg.includes('429') || rawMsg.includes('RESOURCE_EXHAUSTED')) {
+    throw new GeminiServiceError(
+      'Đã đạt giới hạn số lượt gọi API trong 1 phút của Google (Lỗi 429: Rate limit). Vui lòng đợi khoảng 20-30 giây rồi bấm thử lại.',
+      429
+    );
+  }
+
+  if (rawMsg.includes('API_KEY_INVALID') || rawMsg.includes('403') || rawMsg.includes('400')) {
+    throw new GeminiServiceError(
+      'Khóa API Key không hợp lệ hoặc chưa được cấp quyền truy cập. Vui lòng kiểm tra lại API Key trong phần Cài đặt API.',
+      400
+    );
+  }
+
+  throw new GeminiServiceError(
+    `Không thể kết nối tới Google Gemini AI: ${rawMsg || 'Lỗi không xác định.'}`,
+    500
+  );
+}
+
+/**
  * Section 1: Generate individual student learning progress comment
  */
 export async function generateStudentCommentService(
   request: GenerateStudentCommentRequest
 ): Promise<GenerateStudentCommentResponse> {
   const apiKey = getApiKey(request.customApiKey);
-  const modelName = getModelName();
+  const modelName = request.customModel?.trim() || getPreferredModel();
 
   if (!request.studentName?.trim()) {
     throw new GeminiServiceError('Họ và tên học viên không được để trống.', 400);
@@ -104,16 +193,7 @@ ${evalSummary}
 Hãy tạo nhận xét quá trình học cho học viên ${request.studentName}.`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: modelName,
-      contents: prompt,
-      config: {
-        systemInstruction,
-        responseMimeType: 'application/json',
-      },
-    });
-
-    const responseText = response.text || '';
+    const responseText = await callGeminiWithFallback(ai, modelName, prompt, systemInstruction);
     const parsed = cleanJsonResponse(responseText);
 
     if (!parsed.comment || typeof parsed.comment !== 'string') {
@@ -137,7 +217,7 @@ export async function generateSupportSummaryService(
   request: GenerateSupportSummaryRequest
 ): Promise<GenerateSupportSummaryResponse> {
   const apiKey = getApiKey(request.customApiKey);
-  const modelName = getModelName();
+  const modelName = request.customModel?.trim() || getPreferredModel();
 
   if (
     (!request.selectedActivities || request.selectedActivities.length === 0) &&
@@ -181,16 +261,7 @@ ${request.customDetails?.trim() ? `- Ghi chú / Trường hợp cụ thể từ 
 Hãy viết đoạn tổng kết mục 2 cho báo cáo.`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: modelName,
-      contents: prompt,
-      config: {
-        systemInstruction,
-        responseMimeType: 'application/json',
-      },
-    });
-
-    const responseText = response.text || '';
+    const responseText = await callGeminiWithFallback(ai, modelName, prompt, systemInstruction);
     const parsed = cleanJsonResponse(responseText);
 
     if (!parsed.summary || typeof parsed.summary !== 'string') {
@@ -214,7 +285,7 @@ export async function generateRecommendationsService(
   request: GenerateRecommendationsRequest
 ): Promise<GenerateRecommendationsResponse> {
   const apiKey = getApiKey(request.customApiKey);
-  const modelName = getModelName();
+  const modelName = request.customModel?.trim() || getPreferredModel();
 
   if (
     (!request.selectedRecommendations || request.selectedRecommendations.length === 0) &&
@@ -260,16 +331,7 @@ ${request.customDetails?.trim() ? `- Đề xuất bổ sung từ giáo viên: ${
 Hãy viết đoạn đề xuất hoàn chỉnh cho Mục 3 của báo cáo.`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: modelName,
-      contents: prompt,
-      config: {
-        systemInstruction,
-        responseMimeType: 'application/json',
-      },
-    });
-
-    const responseText = response.text || '';
+    const responseText = await callGeminiWithFallback(ai, modelName, prompt, systemInstruction);
     const parsed = cleanJsonResponse(responseText);
 
     if (!parsed.recommendations || typeof parsed.recommendations !== 'string') {

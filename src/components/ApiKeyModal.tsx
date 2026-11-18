@@ -1,19 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Key, X, Check, ExternalLink, ShieldCheck } from 'lucide-react';
-import { getStoredApiKey, setStoredApiKey } from '../utils/apiClient';
+import { Key, X, Check, ExternalLink, ShieldCheck, Cpu } from 'lucide-react';
+import {
+  getStoredApiKey,
+  setStoredApiKey,
+  getStoredModel,
+  setStoredModel,
+} from '../utils/apiClient';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const AVAILABLE_MODELS = [
+  {
+    id: 'gemini-3.5-flash-lite',
+    name: 'gemini-3.5-flash-lite (Khuyên dùng - Phản hồi < 1s, chống quá tải 503)',
+  },
+  {
+    id: 'gemini-2.5-flash-lite',
+    name: 'gemini-2.5-flash-lite (Ổn định, phản xạ nhanh)',
+  },
+  {
+    id: 'gemini-3.1-flash-lite',
+    name: 'gemini-3.1-flash-lite (Tiết kiệm & tốc độ)',
+  },
+  {
+    id: 'gemini-3.8-flash',
+    name: 'gemini-3.8-flash (Mô hình mới - Có thể quá tải giờ cao điểm)',
+  },
+];
+
 export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => {
   const [apiKey, setApiKey] = useState('');
+  const [selectedModel, setSelectedModel] = useState('gemini-3.5-flash-lite');
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setApiKey(getStoredApiKey());
+      setSelectedModel(getStoredModel());
       setIsSaved(false);
     }
   }, [isOpen]);
@@ -22,6 +48,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
 
   const handleSave = () => {
     setStoredApiKey(apiKey.trim());
+    setStoredModel(selectedModel.trim());
     setIsSaved(true);
     setTimeout(() => {
       setIsSaved(false);
@@ -44,8 +71,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                 <Key className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900">Cấu hình Google Gemini API</h3>
-                <p className="text-xs text-slate-500">Dùng để kích hoạt tính năng viết nhận xét và tóm tắt tự động</p>
+                <h3 className="text-lg font-bold text-slate-900">Cấu hình Google Gemini AI</h3>
+                <p className="text-xs text-slate-500">Quản lý API Key và Mô hình AI xử lý báo cáo</p>
               </div>
             </div>
             <button
@@ -60,16 +87,33 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
             <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl text-xs text-blue-800 space-y-1.5 leading-relaxed">
               <div className="font-semibold flex items-center gap-1.5 text-blue-900">
                 <ShieldCheck className="w-4 h-4 text-blue-600" />
-                Bảo mật & Tiện lợi:
+                Cơ chế tự động chống nghẽn (Auto-fallback):
               </div>
               <p>
-                Nếu ứng dụng đã cấu hình biến môi trường <code className="bg-blue-100 px-1 py-0.5 rounded text-blue-900">GEMINI_API_KEY</code> trên Vercel, bạn có thể để trống ô này.
-              </p>
-              <p>
-                Nếu chưa cấu hình server hoặc muốn dùng khóa cá nhân, bạn có thể dán API Key trực tiếp tại đây. Khóa chỉ lưu trong trình duyệt của bạn (localStorage).
+                Hệ thống tự động sử dụng mô hình tối ưu <code className="bg-blue-100 px-1 py-0.5 rounded text-blue-900">gemini-3.5-flash-lite</code> với tốc độ phản hồi cực nhanh (~1 giây) và tự động chuyển đổi mô hình dự phòng nếu máy chủ Google gặp quá tải 503.
               </p>
             </div>
 
+            {/* Model Selection Dropdown */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                <Cpu className="w-4 h-4 text-indigo-600" />
+                Mô hình Gemini sử dụng:
+              </label>
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
+              >
+                {AVAILABLE_MODELS.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* API Key Input */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Google Gemini API Key:
@@ -78,12 +122,15 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="AIzaSy..."
+                placeholder="AIzaSy... hoặc AQ..."
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
               />
+              <p className="mt-1 text-xs text-slate-500">
+                Nếu đã điền trong tệp .env, bạn có thể để trống ô này.
+              </p>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
               <span>Chưa có khóa API?</span>
               <a
                 href="https://aistudio.google.com/app/apikey"
@@ -91,7 +138,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium"
               >
-                Nhận khóa miễn phí tại Google AI Studio
+                Lấy khóa miễn phí tại Google AI Studio
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>

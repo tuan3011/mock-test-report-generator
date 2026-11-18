@@ -15,6 +15,7 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle,
+  Zap,
 } from 'lucide-react';
 
 interface Step4RecommendationsProps {
@@ -93,6 +94,59 @@ export const Step4Recommendations: React.FC<Step4RecommendationsProps> = ({
       setErrorMsg(err.message || 'Lỗi khi tạo đề xuất. Vui lòng thử lại.');
       onChange({ isGenerating: false });
     }
+  };
+
+  const handleQuickTemplate = () => {
+    setErrorMsg('');
+    if (state.selectedRecommendations.length === 0 && !state.customDetails.trim()) {
+      setErrorMsg('Vui lòng tích chọn ít nhất một đề xuất hoặc nhập đề xuất bổ sung của bạn.');
+      return;
+    }
+
+    const sentences: string[] = [];
+    const studentRecs = state.selectedRecommendations.filter((r) =>
+      r.includes('học viên') || r.includes('phụ huynh') || r.includes('thái độ') || r.includes('mục tiêu')
+    );
+    const academicRecs = state.selectedRecommendations.filter((r) =>
+      r.includes('bài tập') || r.includes('ôn tập') || r.includes('thực hành') || r.includes('kỹ năng') || r.includes('ngoài giờ')
+    );
+    const classRecs = state.selectedRecommendations.filter((r) =>
+      r.includes('tương tác') || r.includes('phát biểu') || r.includes('phương pháp') || r.includes('cả lớp')
+    );
+    const centerRecs = state.selectedRecommendations.filter((r) =>
+      r.includes('trung tâm') || r.includes('lộ trình')
+    );
+
+    sentences.push(
+      `Để nâng cao chất lượng học tập cho lớp ${metadata.className || ''} sau đợt Mock Test, giáo viên xin đề xuất một số giải pháp trọng tâm:`
+    );
+
+    if (studentRecs.length > 0) {
+      const recText = studentRecs.map((r) => r.replace(/\.$/, '').toLowerCase()).join(', ');
+      sentences.push(`Đối với các học viên cần quan tâm, kiến nghị ${recText}.`);
+    }
+
+    if (academicRecs.length > 0 || classRecs.length > 0) {
+      const acadText = [...academicRecs, ...classRecs].map((r) => r.replace(/\.$/, '').toLowerCase()).join('; ');
+      sentences.push(`Về công tác chuyên môn trên lớp, giáo viên sẽ tập trung ${acadText}.`);
+    }
+
+    if (centerRecs.length > 0) {
+      const cenText = centerRecs.map((r) => r.replace(/\.$/, '').toLowerCase()).join(', ');
+      sentences.push(`Đồng thời, mong muốn phía trung tâm hỗ trợ ${cenText}.`);
+    }
+
+    if (state.customDetails.trim()) {
+      sentences.push(`Đề xuất bổ sung từ giáo viên: ${state.customDetails.trim()}`);
+    }
+
+    const text = sentences.join(' ');
+    onChange({
+      aiRecommendations: text,
+      recommendations: text,
+      status: 'DRAFT',
+      isGenerating: false,
+    });
   };
 
   return (
@@ -184,14 +238,24 @@ export const Step4Recommendations: React.FC<Step4RecommendationsProps> = ({
               </p>
             </div>
 
-            <div className="flex items-center gap-2 self-start sm:self-center">
+            <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
               <StatusBadge status={state.status} size="sm" />
+
+              <button
+                type="button"
+                onClick={handleQuickTemplate}
+                className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition"
+                title="Tạo nhanh đoạn đề xuất từ các mục đã chọn"
+              >
+                <Zap className="w-3.5 h-3.5 text-amber-500" />
+                <span>Mẫu nhanh</span>
+              </button>
 
               <button
                 type="button"
                 onClick={handleGenerate}
                 disabled={state.isGenerating}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-indigo-300 text-white text-xs font-semibold rounded-xl shadow-xs transition"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-indigo-400 text-white text-xs font-semibold rounded-xl shadow-xs transition"
               >
                 {state.isGenerating ? (
                   <>

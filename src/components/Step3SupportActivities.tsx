@@ -15,6 +15,7 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle,
+  Zap,
 } from 'lucide-react';
 
 interface Step3SupportActivitiesProps {
@@ -93,6 +94,59 @@ export const Step3SupportActivities: React.FC<Step3SupportActivitiesProps> = ({
       setErrorMsg(err.message || 'Lỗi khi tạo nội dung hỗ trợ. Vui lòng thử lại.');
       onChange({ isGenerating: false });
     }
+  };
+
+  const handleQuickTemplate = () => {
+    setErrorMsg('');
+    if (state.selectedActivities.length === 0 && !state.customDetails.trim()) {
+      setErrorMsg('Vui lòng tích chọn ít nhất một hoạt động hỗ trợ hoặc ghi chú hành động cụ thể.');
+      return;
+    }
+
+    const sentences: string[] = [];
+    const direct = state.selectedActivities.filter((a) =>
+      a.includes('riêng') || a.includes('Nói chuyện') || a.includes('Nhắn tin') || a.includes('phụ huynh')
+    );
+    const classroom = state.selectedActivities.filter((a) =>
+      a.includes('trên lớp') || a.includes('Động viên') || a.includes('tương tác') || a.includes('thái độ')
+    );
+    const academic = state.selectedActivities.filter((a) =>
+      a.includes('bài tập') || a.includes('kiến thức') || a.includes('kết quả')
+    );
+    const statusItems = state.selectedActivities.filter((a) =>
+      a.includes('chuyển biến') || a.includes('thay đổi') || a.includes('hợp tác') || a.includes('chưa kịp') || a.includes('tiếp tục')
+    );
+
+    sentences.push(
+      `Trong quá trình giảng dạy và theo sát lớp ${metadata.className || ''}, giáo viên đã chủ động triển khai các biện pháp hỗ trợ phù hợp với từng học viên.`
+    );
+
+    if (direct.length > 0 || classroom.length > 0) {
+      const actions = [...direct, ...classroom].map((a) => a.replace(/\.$/, '').toLowerCase()).join(', ');
+      sentences.push(`Cụ thể, giáo viên đã thực hiện ${actions}.`);
+    }
+
+    if (academic.length > 0) {
+      const acadActions = academic.map((a) => a.replace(/\.$/, '').toLowerCase()).join(', ');
+      sentences.push(`Về chuyên môn học tập, giáo viên đã chú trọng ${acadActions}.`);
+    }
+
+    if (state.customDetails.trim()) {
+      sentences.push(`Đối với các trường hợp cụ thể: ${state.customDetails.trim()}`);
+    }
+
+    if (statusItems.length > 0) {
+      const statusText = statusItems.map((s) => s.replace(/\.$/, '').toLowerCase()).join('; ');
+      sentences.push(`Ghi nhận tình hình theo sát: ${statusText}.`);
+    }
+
+    const text = sentences.join(' ');
+    onChange({
+      aiSummary: text,
+      summary: text,
+      status: 'DRAFT',
+      isGenerating: false,
+    });
   };
 
   return (
@@ -184,14 +238,24 @@ export const Step3SupportActivities: React.FC<Step3SupportActivitiesProps> = ({
               </p>
             </div>
 
-            <div className="flex items-center gap-2 self-start sm:self-center">
+            <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
               <StatusBadge status={state.status} size="sm" />
+
+              <button
+                type="button"
+                onClick={handleQuickTemplate}
+                className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition"
+                title="Tạo nhanh đoạn báo cáo từ các mục đã chọn"
+              >
+                <Zap className="w-3.5 h-3.5 text-amber-500" />
+                <span>Mẫu nhanh</span>
+              </button>
 
               <button
                 type="button"
                 onClick={handleGenerate}
                 disabled={state.isGenerating}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-indigo-300 text-white text-xs font-semibold rounded-xl shadow-xs transition"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-indigo-400 text-white text-xs font-semibold rounded-xl shadow-xs transition"
               >
                 {state.isGenerating ? (
                   <>

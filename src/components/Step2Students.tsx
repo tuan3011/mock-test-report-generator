@@ -12,6 +12,7 @@ import {
 import { StatusBadge } from './StatusBadge';
 import { ConfirmModal } from './ConfirmModal';
 import { requestStudentComment } from '../utils/apiClient';
+import { generateSmartQuickComment } from '../utils/commentTemplateGenerator';
 import {
   UserPlus,
   Trash2,
@@ -24,6 +25,7 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle,
+  Zap,
 } from 'lucide-react';
 
 interface Step2StudentsProps {
@@ -232,6 +234,26 @@ export const Step2Students: React.FC<Step2StudentsProps> = ({
       }));
       updateStudent(student.id, { isGenerating: false });
     }
+  };
+
+  const handleUseQuickTemplate = (student: StudentData) => {
+    setGenerationErrors((prev) => ({ ...prev, [student.id]: '' }));
+
+    if (!student.fullName.trim()) {
+      setGenerationErrors((prev) => ({
+        ...prev,
+        [student.id]: 'Vui lòng nhập Họ và tên học viên trước.',
+      }));
+      return;
+    }
+
+    const quickText = generateSmartQuickComment(student);
+    updateStudent(student.id, {
+      aiComment: quickText,
+      comment: quickText,
+      status: 'DRAFT',
+      isGenerating: false,
+    });
   };
 
   const studentToDelete = students.find((s) => s.id === deleteTargetId);
@@ -488,11 +510,26 @@ export const Step2Students: React.FC<Step2StudentsProps> = ({
                     </div>
                   </div>
 
-                  {/* AI Generation Error Alert */}
+                  {/* AI Generation Error Alert with Quick Fallback */}
                   {generationErrors[student.id] && (
-                    <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
-                      <span>{generationErrors[student.id]}</span>
+                    <div className="p-4 bg-red-50/90 border border-red-200 rounded-xl text-xs text-red-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+                        <div>
+                          <p className="font-semibold">Thông báo từ hệ thống AI:</p>
+                          <p className="mt-0.5 text-red-600">{generationErrors[student.id]}</p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleUseQuickTemplate(student)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-900 font-semibold rounded-lg text-xs shrink-0 transition"
+                        title="Điền ngay nhận xét mẫu dựa trên các tiêu chí đã chọn mà không cần chờ AI"
+                      >
+                        <Zap className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Dùng mẫu nhận xét nhanh</span>
+                      </button>
                     </div>
                   )}
 
@@ -509,19 +546,29 @@ export const Step2Students: React.FC<Step2StudentsProps> = ({
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2 self-start sm:self-center">
+                      <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
                         <StatusBadge status={student.status} size="sm" />
+
+                        <button
+                          type="button"
+                          onClick={() => handleUseQuickTemplate(student)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition"
+                          title="Điền nhận xét mẫu tức thì theo tiêu chí đã chọn"
+                        >
+                          <Zap className="w-3.5 h-3.5 text-amber-500" />
+                          <span>Mẫu nhanh</span>
+                        </button>
 
                         <button
                           type="button"
                           onClick={() => handleGenerateComment(student)}
                           disabled={student.isGenerating}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-indigo-300 text-white text-xs font-semibold rounded-lg shadow-xs transition"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-indigo-400 text-white text-xs font-semibold rounded-lg shadow-xs transition"
                         >
                           {student.isGenerating ? (
                             <>
                               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                              <span>Đang tạo...</span>
+                              <span>Đang kết nối AI...</span>
                             </>
                           ) : student.status === 'NOT_GENERATED' ? (
                             <>
@@ -531,7 +578,7 @@ export const Step2Students: React.FC<Step2StudentsProps> = ({
                           ) : (
                             <>
                               <RefreshCw className="w-3.5 h-3.5" />
-                              <span>Tạo lại</span>
+                              <span>Tạo lại AI</span>
                             </>
                           )}
                         </button>

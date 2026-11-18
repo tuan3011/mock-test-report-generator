@@ -8,6 +8,7 @@ import type {
 } from '../types/report';
 
 export const API_KEY_STORAGE_KEY = 'mock_test_gemini_api_key';
+export const MODEL_STORAGE_KEY = 'mock_test_gemini_model';
 
 export function getStoredApiKey(): string {
   try {
@@ -29,11 +30,34 @@ export function setStoredApiKey(key: string): void {
   }
 }
 
+export function getStoredModel(): string {
+  try {
+    return localStorage.getItem(MODEL_STORAGE_KEY) || 'gemini-3.5-flash-lite';
+  } catch {
+    return 'gemini-3.5-flash-lite';
+  }
+}
+
+export function setStoredModel(model: string): void {
+  try {
+    if (model.trim()) {
+      localStorage.setItem(MODEL_STORAGE_KEY, model.trim());
+    } else {
+      localStorage.removeItem(MODEL_STORAGE_KEY);
+    }
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 async function postJson<T>(endpoint: string, data: any): Promise<T> {
   const customApiKey = getStoredApiKey();
+  const customModel = getStoredModel();
+
   const payload = {
     ...data,
     ...(customApiKey ? { customApiKey } : {}),
+    ...(customModel ? { customModel } : {}),
   };
 
   const response = await fetch(endpoint, {

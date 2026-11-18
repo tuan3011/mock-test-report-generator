@@ -76,6 +76,7 @@ export interface GenerateStudentCommentRequest {
     levelText: string;
   }>;
   customApiKey?: string;
+  customModel?: string;
 }
 
 export interface GenerateStudentCommentResponse {
@@ -89,6 +90,7 @@ export interface GenerateSupportSummaryRequest {
   selectedActivities: string[];
   customDetails?: string;
   customApiKey?: string;
+  customModel?: string;
 }
 
 export interface GenerateSupportSummaryResponse {
@@ -102,6 +104,7 @@ export interface GenerateRecommendationsRequest {
   selectedRecommendations: string[];
   customDetails?: string;
   customApiKey?: string;
+  customModel?: string;
 }
 
 export interface GenerateRecommendationsResponse {
