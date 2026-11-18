@@ -78,7 +78,7 @@ export const StepProgress: React.FC<StepProgressProps> = ({
   ];
 
   return (
-    <nav className="bg-white border-b border-slate-200 py-3 shadow-xs">
+    <nav className="bg-white border-b border-[#E2EAF3] py-2.5 shadow-[0_1px_2px_rgba(66,111,159,0.03)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           {steps.map((step) => {
@@ -89,39 +89,37 @@ export const StepProgress: React.FC<StepProgressProps> = ({
                 key={step.num}
                 type="button"
                 onClick={() => onSelectStep(step.num)}
-                className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition relative ${
+                className={`flex items-center gap-2.5 p-2 rounded-lg border text-left transition relative ${
                   isActive
-                    ? 'border-indigo-600 bg-indigo-50/70 shadow-xs'
-                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                    ? 'border-[#6F9DD0] bg-[#E5EFFB] shadow-xs'
+                    : 'border-[#E2EAF3] bg-white hover:border-[#A9C8EC] hover:bg-[#F3F7FC]'
                 }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold transition ${
-                    step.isComplete
-                      ? 'bg-emerald-500 text-white'
-                      : isActive
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-100 text-slate-600'
+                  className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 text-xs font-semibold transition ${
+                    isActive
+                      ? 'bg-[#426F9F] text-white shadow-xs'
+                      : step.isComplete
+                      ? 'bg-[#EBF7F0] text-[#1E7E45] border border-[#C3E8D0]'
+                      : 'bg-[#F3F7FC] text-[#718096] border border-[#E2EAF3]'
                   }`}
                 >
-                  {step.isComplete ? (
-                    <CheckCircle2 className="w-4 h-4" />
+                  {step.isComplete && !isActive ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#1E7E45]" />
                   ) : (
                     <span>{step.num}</span>
                   )}
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1">
-                    <p
-                      className={`text-xs font-bold truncate ${
-                        isActive ? 'text-indigo-950' : 'text-slate-800'
-                      }`}
-                    >
-                      {step.title}
-                    </p>
-                  </div>
-                  <p className="text-[11px] text-slate-500 truncate">
+                  <p
+                    className={`text-xs font-semibold truncate ${
+                      isActive ? 'text-[#426F9F]' : 'text-[#334155]'
+                    }`}
+                  >
+                    {step.title}
+                  </p>
+                  <p className="text-[11px] text-[#718096] truncate">
                     {step.subtitle}
                   </p>
                 </div>

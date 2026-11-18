@@ -1,7 +1,49 @@
 @import "tailwindcss";
 
+@theme {
+  --color-office-bg: #F3F7FC;
+  --color-office-card: #FFFFFF;
+  --color-office-verylight: #E5EFFB;
+  --color-office-pastel: #D5E5F8;
+  --color-office-accent: #A9C8EC;
+  --color-office-primary: #6F9DD0;
+  --color-office-primary-hover: #5B8BBB;
+  --color-office-dark: #426F9F;
+  --color-office-dark-hover: #355A82;
+  --color-office-text: #334155;
+  --color-office-muted: #718096;
+  --color-office-border: #E2EAF3;
+}
+
 @layer base {
   body {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #F3F7FC;
+    color: #334155;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: #D5E5F8;
+    color: #426F9F;
   }
 }
+
+/* Custom scrollbar for soft office style */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F3F7FC;
+}
+::-webkit-scrollbar-thumb {
+  background: #D5E5F8;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A9C8EC;
+}
+
+

@@ -25,45 +25,45 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
-        <div className="p-6">
-          <div className="flex items-start gap-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/35 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="bg-white rounded-xl max-w-md w-full shadow-lg border border-[#E2EAF3] overflow-hidden">
+        <div className="p-5 sm:p-6">
+          <div className="flex items-start gap-3.5">
             <div
-              className={`p-3 rounded-full shrink-0 ${
-                isDanger ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
+              className={`p-2.5 rounded-lg shrink-0 ${
+                isDanger ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-amber-50 text-amber-600 border border-amber-200'
               }`}
             >
-              <AlertTriangle className="w-6 h-6" />
+              <AlertTriangle className="w-5 h-5" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
-              <p className="mt-2 text-sm text-slate-600 leading-relaxed">{message}</p>
+              <h3 className="text-base font-semibold text-[#334155]">{title}</h3>
+              <p className="mt-1.5 text-xs sm:text-sm text-[#718096] leading-relaxed">{message}</p>
             </div>
             <button
               onClick={onCancel}
-              className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              className="text-[#718096] hover:text-[#334155] hover:bg-[#F3F7FC] p-1 rounded-md transition"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+        <div className="px-5 py-3.5 bg-[#F8FAFD] border-t border-[#E2EAF3] flex justify-end gap-2.5">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition"
+            className="px-3.5 py-1.5 text-xs font-medium text-[#334155] bg-white border border-[#E2EAF3] rounded-lg hover:bg-[#F3F7FC] hover:border-[#A9C8EC] transition shadow-xs"
           >
             {cancelLabel}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition shadow-xs ${
+            className={`px-4 py-1.5 text-xs font-medium text-white rounded-lg transition shadow-xs ${
               isDanger
-                ? 'bg-red-600 hover:bg-red-700 active:bg-red-800'
-                : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+                ? 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800'
+                : 'bg-[#6F9DD0] hover:bg-[#5B8BBB] active:bg-[#4E7DAE]'
             }`}
           >
             {confirmLabel}

@@ -139,7 +139,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[#F3F7FC] font-sans text-[#334155]">
       <Header onResetAll={handleResetAll} />
 
       <StepProgress
@@ -151,7 +151,7 @@ export function App() {
         section3={section3}
       />
 
-      <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 py-6 px-4 sm:px-6 lg:px-8">
         {currentStep === 1 && (
           <Step1ReportInfo
             metadata={metadata}
@@ -202,9 +202,9 @@ export function App() {
         )}
       </main>
 
-      <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+      <footer className="bg-white border-t border-[#E2EAF3] py-4 text-center text-xs text-[#718096]">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p>© Trình tạo Báo cáo sau Mock Test. Tối ưu cho giáo viên trung tâm Anh ngữ.</p>
+          <p>© Trình tạo Báo cáo sau Mock Test. Phong cách tài liệu văn phòng thanh lịch dành cho giáo viên.</p>
           <p className="text-slate-400">Bảo toàn nguyên vẹn mẫu tài liệu Word chính thức.</p>
         </div>
       </footer>

@@ -150,49 +150,49 @@ export const Step3SupportActivities: React.FC<Step3SupportActivitiesProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-5">
       {/* Intro Card */}
-      <div className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-transparent p-6 rounded-2xl border border-blue-100 flex items-start gap-4">
-        <div className="p-3 bg-blue-600 text-white rounded-xl shadow-sm shrink-0">
-          <HeartHandshake className="w-6 h-6" />
+      <div className="bg-[#E5EFFB]/60 p-4 sm:p-5 rounded-xl border border-[#D5E5F8] flex items-start gap-3.5">
+        <div className="p-2.5 bg-[#D5E5F8] text-[#426F9F] rounded-lg shadow-xs shrink-0">
+          <HeartHandshake className="w-5 h-5 text-[#426F9F]" />
         </div>
         <div>
-          <h2 className="text-lg font-bold text-slate-900">
+          <h2 className="text-base font-semibold text-[#334155]">
             Bước 3: Hoạt động hỗ trợ của giáo viên (Mục 2 của Báo cáo)
           </h2>
-          <p className="mt-1 text-sm text-slate-600 leading-relaxed">
+          <p className="mt-1 text-xs sm:text-sm text-[#718096] leading-relaxed">
             Chọn các hoạt động và biện pháp giáo viên ĐÃ THỰC HIỆN để theo sát, hỗ trợ và giải quyết vấn đề của lớp/học viên. Gemini AI sẽ tổng hợp thành đoạn văn chuyên nghiệp, trung thực để điền vào Mục 2 của báo cáo.
           </p>
         </div>
       </div>
 
       {/* Main Checklist Container */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
-        <div className="space-y-6">
+      <div className="bg-white rounded-xl border border-[#E2EAF3] p-5 sm:p-7 shadow-xs space-y-5">
+        <div className="space-y-5">
           {SUPPORT_ACTIVITY_GROUPS.map((group) => (
-            <div key={group.id} className="space-y-3">
-              <h3 className="text-xs font-bold text-indigo-950 uppercase tracking-wider pb-1 border-b border-slate-100">
+            <div key={group.id} className="space-y-2.5">
+              <h3 className="text-xs font-semibold text-[#426F9F] uppercase tracking-wider pb-1.5 border-b border-[#E2EAF3]">
                 {group.title}
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {group.items.map((item) => {
                   const isChecked = state.selectedActivities.includes(item);
                   return (
                     <label
                       key={item}
-                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer select-none transition ${
+                      className={`flex items-start gap-2.5 p-2.5 rounded-lg border cursor-pointer select-none transition ${
                         isChecked
-                          ? 'border-indigo-600 bg-indigo-50/60 shadow-xs'
-                          : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300'
+                          ? 'border-[#6F9DD0] bg-[#E5EFFB]/60 shadow-xs'
+                          : 'border-[#E2EAF3] bg-white hover:bg-[#F8FAFD] hover:border-[#A9C8EC]'
                       }`}
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => toggleActivity(item)}
-                        className="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                        className="mt-0.5 rounded border-[#D5E5F8] text-[#6F9DD0] focus:ring-[#D5E5F8] h-4 w-4"
                       />
-                      <span className="text-xs text-slate-800 leading-snug">{item}</span>
+                      <span className="text-xs text-[#334155] leading-snug">{item}</span>
                     </label>
                   );
                 })}
@@ -201,8 +201,8 @@ export const Step3SupportActivities: React.FC<Step3SupportActivitiesProps> = ({
           ))}
 
           {/* Custom details textarea */}
-          <div className="space-y-2 pt-2">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+          <div className="space-y-1.5 pt-1">
+            <label className="block text-xs font-semibold text-[#334155] uppercase tracking-wider">
               E. Các hoạt động hỗ trợ khác / Trường hợp cụ thể (Tùy chọn):
             </label>
             <textarea
@@ -210,30 +210,30 @@ export const Step3SupportActivities: React.FC<Step3SupportActivitiesProps> = ({
               value={state.customDetails}
               onChange={(e) => handleCustomDetailsChange(e.target.value)}
               placeholder="Nhập các trường hợp đặc biệt (ví dụ: đã gọi điện cho phụ huynh bạn Nam ngày 10/11, giao đề rút gọn 10 câu cho bạn Lan...)"
-              className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition leading-relaxed"
+              className="w-full p-3 bg-[#F8FAFD] border border-[#E2EAF3] rounded-lg text-xs text-[#334155] placeholder:text-slate-400 focus:outline-none focus:border-[#6F9DD0] focus:ring-2 focus:ring-[#D5E5F8] focus:bg-white transition leading-relaxed"
             />
           </div>
         </div>
 
         {/* Error message */}
         {errorMsg && (
-          <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {/* AI Generation Box */}
-        <div className="p-5 sm:p-6 bg-gradient-to-br from-indigo-50/50 via-slate-50 to-white rounded-2xl border border-indigo-100 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="p-4 sm:p-5 bg-[#F8FAFD] rounded-xl border border-[#D5E5F8] space-y-3.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-600" />
-                <h4 className="text-sm font-bold text-slate-900">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-[#426F9F]" />
+                <h4 className="text-xs sm:text-sm font-semibold text-[#334155]">
                   Nội dung báo cáo Mục 2 (Sau khi AI tổng hợp)
                 </h4>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-[#718096] mt-0.5">
                 Được tổng hợp từ các mục đã chọn, mô tả trung thực cách giáo viên theo sát lớp
               </p>
             </div>
@@ -244,7 +244,7 @@ export const Step3SupportActivities: React.FC<Step3SupportActivitiesProps> = ({
               <button
                 type="button"
                 onClick={handleQuickTemplate}
-                className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-[#E5EFFB] text-[#426F9F] border border-[#D5E5F8] text-xs font-medium rounded-lg transition shadow-xs"
                 title="Tạo nhanh đoạn báo cáo từ các mục đã chọn"
               >
                 <Zap className="w-3.5 h-3.5 text-amber-500" />
@@ -255,7 +255,7 @@ export const Step3SupportActivities: React.FC<Step3SupportActivitiesProps> = ({
                 type="button"
                 onClick={handleGenerate}
                 disabled={state.isGenerating}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:bg-indigo-400 text-white text-xs font-semibold rounded-xl shadow-xs transition"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#6F9DD0] hover:bg-[#5B8BBB] active:bg-[#4E7DAE] disabled:bg-slate-200 disabled:text-slate-400 text-white text-xs font-medium rounded-lg shadow-xs transition"
               >
                 {state.isGenerating ? (
                   <>
@@ -278,27 +278,27 @@ export const Step3SupportActivities: React.FC<Step3SupportActivitiesProps> = ({
           </div>
 
           <textarea
-            rows={5}
+            rows={4}
             value={state.summary}
             onChange={(e) => handleSummaryChange(e.target.value)}
             placeholder="Nhấn nút 'Tạo nội dung AI' để tự động tạo đoạn văn hoàn chỉnh hoặc trực tiếp gõ vào đây..."
-            className="w-full p-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition leading-relaxed"
+            className="w-full p-3 bg-white border border-[#E2EAF3] rounded-lg text-sm text-[#334155] placeholder:text-slate-400 focus:outline-none focus:border-[#6F9DD0] focus:ring-2 focus:ring-[#D5E5F8] transition leading-relaxed"
           />
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-indigo-100/60">
-            <div className="text-xs text-slate-500">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-[#E2EAF3]">
+            <div className="text-[11px] text-[#718096]">
               {state.status === 'APPROVED' ? (
-                <span className="text-emerald-700 font-medium flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4" />
+                <span className="text-[#1E7E45] font-medium flex items-center gap-1">
+                  <CheckCircle className="w-3.5 h-3.5" />
                   Mục 2 đã được duyệt và sẵn sàng xuất vào tệp Word.
                 </span>
               ) : state.status === 'NEEDS_REVIEW' ? (
-                <span className="text-orange-700 font-medium flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4" />
+                <span className="text-[#B76E00] font-medium flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5" />
                   Nội dung vừa chỉnh sửa, vui lòng nhấn "Duyệt Mục 2" để xác nhận.
                 </span>
               ) : state.status === 'DRAFT' ? (
-                <span className="text-amber-700 font-medium">
+                <span className="text-[#426F9F] font-medium">
                   Bản nháp đã tạo. Hãy xem lại và nhấn "Duyệt Mục 2".
                 </span>
               ) : (
@@ -310,26 +310,26 @@ export const Step3SupportActivities: React.FC<Step3SupportActivitiesProps> = ({
               type="button"
               onClick={handleApprove}
               disabled={!state.summary.trim() || state.status === 'APPROVED'}
-              className={`inline-flex items-center gap-1.5 px-5 py-2 text-xs font-semibold rounded-xl transition ${
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-lg transition shadow-xs ${
                 state.status === 'APPROVED'
-                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 cursor-default'
+                  ? 'bg-[#EBF7F0] text-[#1E7E45] border border-[#C3E8D0] cursor-default'
                   : state.summary.trim()
-                  ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-xs'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white'
+                  : 'bg-slate-100 text-slate-400 border border-[#E2EAF3] cursor-not-allowed shadow-none'
               }`}
             >
-              <Check className="w-4 h-4" />
+              <Check className="w-3.5 h-3.5" />
               <span>{state.status === 'APPROVED' ? 'Đã duyệt ✓' : 'Duyệt nội dung Mục 2'}</span>
             </button>
           </div>
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+        <div className="flex items-center justify-between pt-4 border-t border-[#E2EAF3]">
           <button
             type="button"
             onClick={onPrev}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-medium text-[#334155] bg-white border border-[#E2EAF3] rounded-lg hover:bg-[#F3F7FC] hover:border-[#A9C8EC] transition shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Quay lại: Học viên</span>
@@ -338,7 +338,7 @@ export const Step3SupportActivities: React.FC<Step3SupportActivitiesProps> = ({
           <button
             type="button"
             onClick={onNext}
-            className="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-xs transition"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-medium text-white bg-[#6F9DD0] hover:bg-[#5B8BBB] active:bg-[#4E7DAE] rounded-lg shadow-xs transition"
           >
             <span>Tiếp tục: Đề xuất giải pháp (Mục 3)</span>
             <ArrowRight className="w-4 h-4" />

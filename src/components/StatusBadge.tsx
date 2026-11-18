@@ -14,8 +14,8 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' })
     case 'APPROVED':
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-medium bg-emerald-100 text-emerald-800 border border-emerald-300 ${
-            isSm ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-xs sm:text-sm'
+          className={`inline-flex items-center gap-1.5 rounded-md font-medium bg-[#EBF7F0] text-[#1E7E45] border border-[#C3E8D0] ${
+            isSm ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs sm:text-sm'
           }`}
         >
           <CheckCircle2 className={isSm ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
@@ -26,8 +26,8 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' })
     case 'DRAFT':
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-medium bg-amber-100 text-amber-800 border border-amber-300 ${
-            isSm ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-xs sm:text-sm'
+          className={`inline-flex items-center gap-1.5 rounded-md font-medium bg-[#E5EFFB] text-[#426F9F] border border-[#A9C8EC] ${
+            isSm ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs sm:text-sm'
           }`}
         >
           <Clock className={isSm ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
@@ -38,12 +38,12 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' })
     case 'NEEDS_REVIEW':
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-medium bg-orange-100 text-orange-800 border border-orange-300 ${
-            isSm ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-xs sm:text-sm'
+          className={`inline-flex items-center gap-1.5 rounded-md font-medium bg-[#FEF5E7] text-[#B76E00] border border-[#FAD8A5] ${
+            isSm ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs sm:text-sm'
           }`}
         >
           <AlertCircle className={isSm ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
-          Cần xem lại (Đã chỉnh sửa)
+          Cần xem lại
         </span>
       );
 
@@ -51,8 +51,8 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' })
     default:
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full font-medium bg-slate-100 text-slate-600 border border-slate-300 ${
-            isSm ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-xs sm:text-sm'
+          className={`inline-flex items-center gap-1.5 rounded-md font-medium bg-[#F3F7FC] text-[#718096] border border-[#E2EAF3] ${
+            isSm ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs sm:text-sm'
           }`}
         >
           <CircleDashed className={isSm ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
