@@ -1,4 +1,4 @@
-import { generateRecommendationsService, GeminiServiceError } from '../server/geminiService';
+import { generateRecommendationsService } from '../server/geminiService';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,7 +23,7 @@ export default async function handler(req: any, res: any) {
     const result = await generateRecommendationsService(body);
     res.status(200).json(result);
   } catch (err: any) {
-    const status = err instanceof GeminiServiceError ? err.statusCode : 500;
+    const status = err?.statusCode || (err?.name === 'GeminiServiceError' ? 400 : 500);
     res.status(status).json({ error: err.message || 'Lỗi xử lý yêu cầu tạo đề xuất.' });
   }
 }

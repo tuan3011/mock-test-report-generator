@@ -21,7 +21,7 @@ function getApiKey(customKey?: string): string {
   const key = customKey?.trim() || process.env.GEMINI_API_KEY?.trim();
   if (!key) {
     throw new GeminiServiceError(
-      'Chưa cấu hình Google Gemini API Key. Vui lòng nhập API Key trong phần Cài đặt API hoặc cấu hình biến môi trường GEMINI_API_KEY.',
+      'Chưa cấu hình Google Gemini API Key. Bạn hãy thêm biến môi trường GEMINI_API_KEY trên Vercel (Project Settings > Environment Variables) hoặc nhấn nút "API Key" ở góc trên giao diện web để nhập key cá nhân.',
       400
     );
   }
