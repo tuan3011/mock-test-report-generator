@@ -51,7 +51,6 @@ async function callGeminiWithFallback(
   prompt: string,
   systemInstruction: string
 ): Promise<string> {
-  // Ordered candidate models: prioritized by high availability and low latency
   const candidateModels = Array.from(
     new Set([
       preferredModel,
@@ -65,7 +64,6 @@ async function callGeminiWithFallback(
   let lastError: any = null;
 
   for (const model of candidateModels) {
-    // Attempt up to 2 times per model if 503/429
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         const response = await ai.models.generateContent({
@@ -84,7 +82,6 @@ async function callGeminiWithFallback(
         lastError = err;
         const errMsg = err?.message || '';
 
-        // If error is 503 (High demand) or 429 (Rate limit), wait a brief moment and retry or switch model
         const isTransient =
           errMsg.includes('503') ||
           errMsg.includes('UNAVAILABLE') ||
@@ -93,20 +90,18 @@ async function callGeminiWithFallback(
 
         if (isTransient && attempt === 1) {
           await new Promise((resolve) => setTimeout(resolve, 800));
-          continue; // retry this model once
+          continue;
         }
 
-        // Otherwise break out of retry loop to try next model in waterfall
         break;
       }
     }
   }
 
-  // If all candidate models failed, craft a helpful Vietnamese message
   const rawMsg = lastError?.message || '';
   if (rawMsg.includes('503') || rawMsg.includes('high demand') || rawMsg.includes('UNAVAILABLE')) {
     throw new GeminiServiceError(
-      'Mô hình AI của Google hiện đang quá tải tạm thời (Lỗi 503: High Demand). Vui lòng thử lại sau giây lát hoặc sử dụng tính năng "Tạo nhận xét nhanh theo tiêu chí".',
+      'Mô hình AI của Google hiện đang quá tải tạm thời (Lỗi 503: High Demand). Vui lòng thử lại sau giây lát hoặc sử dụng tính năng "Mẫu nhanh".',
       503
     );
   }
@@ -133,6 +128,7 @@ async function callGeminiWithFallback(
 
 /**
  * Section 1: Generate individual student learning progress comment
+ * Follows POST-GENERATION REPORT REFINEMENT guidelines
  */
 export async function generateStudentCommentService(
   request: GenerateStudentCommentRequest
@@ -163,24 +159,42 @@ export async function generateStudentCommentService(
     .map((e) => `- ${e.category} > ${e.characteristic}: Mức ${e.level}/5 (${e.levelText})`)
     .join('\n');
 
-  const systemInstruction = `Bạn là một giáo viên tiếng Anh tận tâm, giàu kinh nghiệm tại trung tâm Anh ngữ, đang viết "Nhận xét về quá trình học" cho báo cáo sau bài thi Mock Test hàng tháng.
+  const systemInstruction = `Bạn là một chuyên viên biên tập báo cáo học thuật tại trung tâm tiếng Anh, phụ trách chuẩn hóa phần "Nhận xét về quá trình học" cho học viên sau kỳ thi Mock Test hàng tháng.
 
-MỤC TIÊU:
-Tạo đoạn văn nhận xét ngắn gọn, gắn kết, chuyên nghiệp và giàu tính khích lệ dành cho học viên.
+QUY TẮC XƯNG HÔ – BẮT BUỘC (QUAN TRỌNG NHẤT):
+1. Trong toàn bộ lời nhận xét: BẮT BUỘC sử dụng cách xưng hô "bạn" để gọi học viên.
+   - ĐÚNG: "Bạn có thái độ học tập tốt và luôn tập trung theo dõi bài giảng."
+   - ĐÚNG: "Bạn cần luyện tập thêm kỹ năng nghe để cải thiện phản xạ."
+   - ĐÚNG: "Thời gian tới, bạn nên chú ý..."
+   - TUYỆT ĐỐI KHÔNG DÙNG: "Con...", "Em...".
+   - KHÔNG thay đổi liên tục giữa "bạn", "con", "em".
+   - Không lặp lại tên riêng học viên một cách máy móc ở đầu mỗi câu; hãy sử dụng "bạn" tự nhiên.
 
-QUY TẮC BẮT BUỘC:
-1. Xưng hô: Gọi học viên là "con" một cách tự nhiên, ấm áp và gần gũi (ví dụ: "Con tiếp thu bài nhanh...", "Con cần chú ý hơn về...").
-2. Chỉ nhận xét DỰA TRÊN những tiêu chí đã được đánh giá cụ thể trong danh sách. TUYỆT ĐỐI KHÔNG tự bịa ra những phẩm chất hay kỹ năng chưa được đánh giá.
-3. KHÔNG liệt kê thang điểm dạng số hay mức độ máy móc (không viết "Đạt 4/5" hay "Mức Tốt"). Thay vào đó hãy diễn giải thành câu văn mạch lạc, liên kết các điểm mạnh và điểm cần cải thiện.
-4. KHÔNG đồng nhất điểm thi Mock Test thấp với thái độ học kém trên lớp. Nếu điểm thi thấp nhưng thái độ được đánh giá chăm chỉ, hãy ghi nhận sự cố gắng của con và động viên con khắc phục phần kiến thức.
-5. TUYỆT ĐỐI KHÔNG tự ý suy đoán, tính toán hay thay đổi điểm số Mock Test của học viên.
-6. Giọng điệu: Khách quan, trung thực với quan sát của giáo viên, ngôn từ sư phạm tích cực, mang tính xây dựng, phù hợp để gửi phụ huynh và lưu trữ báo cáo chuyên môn.
-7. Độ dài: Khoảng 3 - 5 câu văn mạch lạc trong 1 đoạn văn.
+CẤU TRÚC NHẬN XÉT LOGIC (Văn phong chuẩn báo cáo PRE-5 / PRE-7):
+1. Thái độ và tinh thần học tập trên lớp (dựa trên tiêu chí Thái độ / Tham gia nếu có).
+2. Những điểm mạnh về kiến thức và kỹ năng cụ thể.
+3. Những điểm còn hạn chế, khó khăn cụ thể mà bạn gặp phải.
+4. Hướng cải thiện hoặc lời khuyến khích thiết thực trong thời gian tới.
+
+VĂN PHONG VÀ CÁCH DIỄN ĐẠT SƯ PHẠM:
+- Sử dụng các mẫu câu tự nhiên, giàu tính học thuật:
+  "Bạn đã thể hiện sự tiến bộ rõ rệt..."
+  "Điểm nổi bật của bạn nằm ở..."
+  "Bạn nắm khá vững các kiến thức..."
+  "Tuy nhiên, bạn vẫn còn gặp khó khăn khi..."
+  "Bên cạnh đó, kỹ năng... cần được cải thiện thêm..."
+  "Thời gian tới, bạn nên..."
+  "Nhìn chung, bạn đã có những tiến bộ đáng ghi nhận..."
+- Tránh nhận xét chung chung hoặc sáo rỗng. Hãy nêu rõ khía cạnh cụ thể dựa trên tiêu chí được đánh giá.
+- Cân bằng: Không chỉ tập trung điểm yếu, không khen quá mức; không dùng từ ngữ tiêu cực, phán xét.
+- KHÔNG liệt kê thang điểm dạng số máy móc ("4/5", "mức tốt"). Diễn đạt thành đoạn văn hoàn chỉnh.
+- TUYỆT ĐỐI KHÔNG thay đổi hoặc tự suy đoán điểm Mock Test.
+- Độ dài: Khoảng 3 - 5 câu văn mạch lạc, gắn kết trong 1 đoạn văn.
 
 ĐỊNH DẠNG ĐẦU RA:
-Trả về duy nhất định dạng JSON thuần túy (không thêm lời giải thích):
+Trả về duy nhất JSON thuần túy:
 {
-  "comment": "Nội dung nhận xét về quá trình học bằng tiếng Việt"
+  "comment": "Nội dung nhận xét về quá trình học bằng tiếng Việt, xưng hô 'bạn'"
 }`;
 
   const prompt = `Thông tin học viên:
@@ -190,7 +204,7 @@ Trả về duy nhất định dạng JSON thuần túy (không thêm lời giả
 - Các tiêu chí đã đánh giá trong quá trình học:
 ${evalSummary}
 
-Hãy tạo nhận xét quá trình học cho học viên ${request.studentName}.`;
+Hãy biên soạn nhận xét quá trình học chuẩn mực, xưng hô "bạn" cho học viên ${request.studentName}.`;
 
   try {
     const responseText = await callGeminiWithFallback(ai, modelName, prompt, systemInstruction);
@@ -212,6 +226,7 @@ Hãy tạo nhận xét quá trình học cho học viên ${request.studentName}.
 
 /**
  * Section 2: Generate teacher support activities summary
+ * Standardizes teacher observations, actions taken, responses, and unresolved cases
  */
 export async function generateSupportSummaryService(
   request: GenerateSupportSummaryRequest
@@ -230,24 +245,25 @@ export async function generateSupportSummaryService(
 
   const activitiesList = (request.selectedActivities || []).map((a) => `- ${a}`).join('\n');
 
-  const systemInstruction = `Bạn là giáo viên phụ trách lớp tại trung tâm Anh ngữ, đang viết Mục 2 trong Báo cáo sau Mock Test:
+  const systemInstruction = `Bạn là một chuyên viên biên tập báo cáo học thuật tại trung tâm tiếng Anh, chuẩn hóa nội dung Mục 2 trong Báo cáo sau Mock Test:
 "Chia sẻ và nhìn nhận từ giáo viên về quá trình theo sát hỗ trợ lớp và những cách giải quyết mà giáo viên đã thực hiện".
 
-MỤC TIÊU:
-Viết một đoạn văn báo cáo chuyên nghiệp, chân thực và rõ ràng về những hành động giáo viên ĐÃ THỰC HIỆN để theo sát và hỗ trợ học viên/lớp.
-
-QUY TẮC BẮT BUỘC:
-1. Mô tả trung thực những việc giáo viên đã làm dựa trên các mục được chọn và ghi chú bổ sung.
-2. Tuyệt đối KHÔNG bịa đặt thêm các cuộc trò chuyện, ngày giờ cụ thể, phản hồi của phụ huynh hay kết quả thần kỳ không có trong dữ liệu đầu vào.
-3. Nếu giáo viên có chọn mục "Giáo viên chưa kịp trao đổi riêng với học viên" hoặc có học viên chưa tiến bộ/chưa hợp tác, hãy trình bày thẳng thắn, minh bạch nhưng mang tính xây dựng.
-4. Phân biệt rõ hành động đã hoàn thành và hành động đang tiếp tục theo dõi.
-5. Không đơn thuần chép lại danh sách gạch đầu dòng; hãy liên kết các hành động thành một đoạn văn hoàn chỉnh, logic và sư phạm.
-6. Giọng điệu: Chuyên nghiệp, trách nhiệm, trung thực, mang tính xây dựng.
+MỤC TIÊU VÀ VĂN PHONG BIÊN TẬP:
+- Thể hiện rõ ràng quá trình giáo viên theo sát và hỗ trợ lớp/học viên theo trình tự:
+  1. Vấn đề hoặc khó khăn giáo viên quan sát được từ học viên hoặc lớp.
+  2. Biện pháp can thiệp mà giáo viên ĐÃ THỰC HIỆN.
+  3. Phản ứng hoặc kết quả bước đầu sau khi được hỗ trợ.
+  4. Tình trạng hiện tại hoặc những vấn đề còn tồn đọng cần tiếp tục theo sát.
+- Xưng hô trong mục này: Sử dụng "giáo viên" hoặc "GV" một cách trang trọng, khách quan.
+- Phân biệt minh bạch giữa hành động ĐÃ LÀM, ĐANG LÀM và CHƯA KỊP THỰC HIỆN.
+- Nếu giáo viên có ghi nhận chưa kịp trao đổi riêng hoặc học viên chưa tiến bộ/chưa hợp tác, hãy diễn đạt trung thực, thẳng thắn nhưng mang tính xây dựng cao.
+- TUYỆT ĐỐI KHÔNG tự bịa đặt các hành động (như gọi điện phụ huynh, kèm riêng ngoài giờ) nếu dữ liệu không cung cấp.
+- Không đơn thuần sao chép gạch đầu dòng; hãy liên kết thành một báo cáo mạch lạc, chuyên môn cao.
 
 ĐỊNH DẠNG ĐẦU RA:
 Trả về duy nhất định dạng JSON thuần túy:
 {
-  "summary": "Nội dung báo cáo mục 2 bằng tiếng Việt"
+  "summary": "Nội dung báo cáo mục 2 bằng tiếng Việt chuyên nghiệp"
 }`;
 
   const prompt = `Thông tin lớp học:
@@ -256,9 +272,9 @@ Trả về duy nhất định dạng JSON thuần túy:
 - Kỹ năng phụ trách: ${request.responsibleSkill || 'Chuyên môn'}
 - Các hành động hỗ trợ giáo viên ĐÃ THỰC HIỆN:
 ${activitiesList || '(Không chọn mục mẫu nào)'}
-${request.customDetails?.trim() ? `- Ghi chú / Trường hợp cụ thể từ giáo viên: ${request.customDetails.trim()}` : ''}
+${request.customDetails?.trim() ? `- Ghi chú / Tình huống cụ thể từ giáo viên: ${request.customDetails.trim()}` : ''}
 
-Hãy viết đoạn tổng kết mục 2 cho báo cáo.`;
+Hãy biên tập đoạn báo cáo hoàn chỉnh cho Mục 2.`;
 
   try {
     const responseText = await callGeminiWithFallback(ai, modelName, prompt, systemInstruction);
@@ -280,6 +296,7 @@ Hãy viết đoạn tổng kết mục 2 cho báo cáo.`;
 
 /**
  * Section 3: Generate teacher recommendations
+ * Standardizes pedagogical proposals for students, class, and center
  */
 export async function generateRecommendationsService(
   request: GenerateRecommendationsRequest
@@ -298,26 +315,24 @@ export async function generateRecommendationsService(
 
   const recList = (request.selectedRecommendations || []).map((r) => `- ${r}`).join('\n');
 
-  const systemInstruction = `Bạn là giáo viên phụ trách lớp tại trung tâm Anh ngữ, đang viết Mục 3 trong Báo cáo sau Mock Test:
+  const systemInstruction = `Bạn là một chuyên viên biên tập báo cáo học thuật tại trung tâm tiếng Anh, chuẩn hóa nội dung Mục 3 trong Báo cáo sau Mock Test:
 "Giáo viên có đề xuất nào cho lớp và cách giải quyết học viên có vấn đề như thế nào không?".
 
-MỤC TIÊU:
-Viết một đoạn đề xuất giải pháp mạch lạc, thiết thực, giúp trung tâm và giáo viên phối hợp giải quyết các vấn đề còn tồn đọng sau kỳ thi Mock Test.
-
-QUY TẮC BẮT BUỘC:
-1. Chỉ dựa trên các đề xuất được giáo viên lựa chọn và ghi chú bổ sung.
-2. Phân nhóm đề xuất một cách logic:
-   - Đề xuất đối với học viên cụ thể (theo dõi, động viên, trao đổi riêng, phối hợp phụ huynh...)
-   - Đề xuất về chuyên môn / giảng dạy trên lớp (tăng cường bài tập, ôn tập, hoạt động tương tác...)
-   - Đề xuất phối hợp với trung tâm (liên hệ phụ huynh, tư vấn lộ trình...)
-3. Tránh lặp lại nguyên văn nội dung của Mục 2 (Mục 2 là những gì đã làm, Mục 3 là những giải pháp và đề xuất cho thời gian tới).
-4. Không tuyên bố các đề xuất này đã được áp dụng xong.
-5. Giọng văn: Đề xuất sư phạm, lịch sự, xây dựng, mang tính thực tiễn cao.
+MỤC TIÊU VÀ NGUYÊN TẮC BIÊN TẬP:
+- Đưa ra các đề xuất thiết thực, có tính khả thi cao, xuất phát trực tiếp từ các vấn đề được ghi nhận.
+- Phân nhóm đề xuất mạch lạc:
+  1. Đề xuất đối với học viên cụ thể (theo dõi sát sao, đặt mục tiêu, phối hợp gia đình).
+  2. Đề xuất chuyên môn và phương pháp giảng dạy trên lớp (tăng cường bài tập bổ trợ, hoạt động tương tác, ôn tập trọng tâm).
+  3. Đề xuất phối hợp từ phía trung tâm (liên hệ phụ huynh, tư vấn lộ trình học tập).
+- Tránh đưa ra đề xuất chung chung, sáo rỗng như "cần cố gắng hơn" mà phải chỉ rõ giải pháp và hướng thực hiện.
+- Tránh lặp lại nguyên văn Mục 2 (Mục 2 là những gì đã làm, Mục 3 là phương hướng và đề xuất sắp tới).
+- Không khẳng định các biện pháp này đã được thực hiện.
+- Giọng văn: Đề xuất sư phạm, chuẩn mực, tính xây dựng cao.
 
 ĐỊNH DẠNG ĐẦU RA:
 Trả về duy nhất định dạng JSON thuần túy:
 {
-  "recommendations": "Nội dung đề xuất mục 3 bằng tiếng Việt"
+  "recommendations": "Nội dung đề xuất mục 3 bằng tiếng Việt chuyên nghiệp"
 }`;
 
   const prompt = `Thông tin lớp học:
@@ -328,7 +343,7 @@ Trả về duy nhất định dạng JSON thuần túy:
 ${recList || '(Không chọn mục mẫu nào)'}
 ${request.customDetails?.trim() ? `- Đề xuất bổ sung từ giáo viên: ${request.customDetails.trim()}` : ''}
 
-Hãy viết đoạn đề xuất hoàn chỉnh cho Mục 3 của báo cáo.`;
+Hãy biên tập đoạn đề xuất hoàn chỉnh cho Mục 3.`;
 
   try {
     const responseText = await callGeminiWithFallback(ai, modelName, prompt, systemInstruction);

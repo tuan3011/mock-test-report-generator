@@ -542,7 +542,7 @@ export const Step2Students: React.FC<Step2StudentsProps> = ({
                           Nhận xét về quá trình học (Cột 3 của Báo cáo)
                         </h4>
                         <p className="text-xs text-slate-500 mt-0.5">
-                          Tự động sinh nhận xét tự nhiên dựa trên các tiêu chí đã chọn, xưng "con"
+                          Tự động sinh nhận xét học thuật chuẩn mực, xưng hô "bạn" theo văn phong sư phạm
                         </p>
                       </div>
 

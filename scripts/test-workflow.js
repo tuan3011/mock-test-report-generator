@@ -3,6 +3,7 @@ import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
 import { validateReportForExport } from '../src/utils/docxGenerator.ts';
 import { buildReportFilename } from '../src/utils/filename.ts';
+import { generateSmartQuickComment } from '../src/utils/commentTemplateGenerator.ts';
 
 console.log('====================================================');
 console.log(' BẮT ĐẦU KIỂM THỬ TOÀN DIỆN HỆ THỐNG BÁO CÁO MOCK TEST');
@@ -68,8 +69,8 @@ let students = [
     fullName: 'Nguyễn Văn An',
     score: '7.5',
     evaluations: { 'att-concentration': 4, 'spk-pronunciation': 5 },
-    aiComment: 'Con tập trung và phát âm tốt.',
-    comment: 'Con tập trung và phát âm tốt.',
+    aiComment: 'Bạn tập trung và phát âm tốt.',
+    comment: 'Bạn tập trung và phát âm tốt.',
     status: 'APPROVED',
   },
   {
@@ -77,8 +78,8 @@ let students = [
     fullName: 'Lê Bảo Bình',
     score: '4.5',
     evaluations: { 'att-concentration': 2, 'hw-completion': 2 },
-    aiComment: 'Con chưa tập trung và chưa làm đủ bài.',
-    comment: 'Con chưa tập trung và chưa làm đủ bài.',
+    aiComment: 'Bạn chưa tập trung và chưa làm đủ bài.',
+    comment: 'Bạn chưa tập trung và chưa làm đủ bài.',
     status: 'DRAFT',
   },
   {
@@ -86,8 +87,8 @@ let students = [
     fullName: 'Hoàng Minh Châu',
     score: '9.0',
     evaluations: { 'att-diligence': 5, 'rdg-comprehension': 5 },
-    aiComment: 'Con xuất sắc.',
-    comment: 'Con xuất sắc.',
+    aiComment: 'Bạn học rất xuất sắc.',
+    comment: 'Bạn học rất xuất sắc.',
     status: 'APPROVED',
   },
 ];
@@ -197,7 +198,7 @@ const fullyApprovedStudents = [
     score: '7.5',
     evaluations: {},
     aiComment: '',
-    comment: 'Con tiếp thu bài tốt, có tinh thần cầu tiến và tích cực phát biểu.',
+    comment: 'Bạn tiếp thu bài tốt, có tinh thần cầu tiến và tích cực phát biểu.',
     status: 'APPROVED',
   },
   {
@@ -206,7 +207,7 @@ const fullyApprovedStudents = [
     score: '5.0',
     evaluations: {},
     aiComment: '',
-    comment: 'Con còn rụt rè, cần chăm chỉ làm bài tập về nhà hơn để cải thiện kỹ năng nghe.',
+    comment: 'Bạn còn rụt rè, cần chăm chỉ làm bài tập về nhà hơn để cải thiện kỹ năng nghe.',
     status: 'APPROVED',
   },
   {
@@ -215,7 +216,7 @@ const fullyApprovedStudents = [
     score: '8.5',
     evaluations: {},
     aiComment: '',
-    comment: 'Con học rất chăm ngoan, nắm chắc cấu trúc và phản xạ nhanh.',
+    comment: 'Bạn học rất chăm ngoan, nắm chắc cấu trúc và phản xạ nhanh.',
     status: 'APPROVED',
   },
 ];
@@ -299,6 +300,44 @@ assert(verifyXml.includes('3. Giáo viên có đề xuất'), 'Giữ nguyên ti�
 // Dọn dẹp tệp test
 fs.unlinkSync(testFilename);
 console.log('[CLEANUP] Đã dọn dẹp tệp test tạm thời.');
+
+// ---------------------------------------------------------------------
+// TEST 8: Chuẩn hóa văn phong sư phạm - Bắt buộc xưng hô "bạn" (Không dùng con/em)
+// ---------------------------------------------------------------------
+console.log('\n--- TEST GROUP 8: Chuẩn hóa văn phong báo cáo giáo viên & Xưng hô "bạn" ---');
+const testStd = {
+  id: 'std_test',
+  fullName: 'Phạm Nhật Nam',
+  score: '7.5',
+  evaluations: {
+    'att-concentration': 5,
+    'spk-pronunciation': 4,
+    'list-listening-comprehension': 2,
+  },
+  aiComment: '',
+  comment: '',
+  status: 'DRAFT',
+};
+
+const generatedQuickComment = generateSmartQuickComment(testStd);
+console.log('Nhận xét mẫu sinh ra:\n', generatedQuickComment);
+
+assert(
+  generatedQuickComment.includes('bạn'),
+  'Nhận xét sử dụng đại từ xưng hô "bạn"'
+);
+assert(
+  !generatedQuickComment.toLowerCase().includes('con ') && !generatedQuickComment.toLowerCase().includes('em '),
+  'Tuyệt đối KHÔNG sử dụng xưng hô "con" hoặc "em"'
+);
+assert(
+  generatedQuickComment.includes('7.5/10'),
+  'Bảo toàn điểm số Mock Test 7.5/10 không bị biến đổi'
+);
+assert(
+  generatedQuickComment.includes('Thời gian tới, bạn nên') || generatedQuickComment.includes('tiến bộ đáng ghi nhận'),
+  'Tuân thủ cấu trúc khuyến nghị và văn phong sư phạm PRE-5/PRE-7'
+);
 
 // ---------------------------------------------------------------------
 // KẾT QUẢ KIỂM THỬ
