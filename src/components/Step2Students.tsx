@@ -162,16 +162,16 @@ export const Step2Students: React.FC<Step2StudentsProps> = ({
     if (student.score === '' || student.score === undefined) {
       setGenerationErrors((prev) => ({
         ...prev,
-        [student.id]: 'Vui lòng nhập điểm Mock Test (từ 0 đến 10).',
+        [student.id]: 'Vui lòng nhập điểm Mock Test (từ 0 đến 100).',
       }));
       return;
     }
 
     const scoreNum = Number(student.score);
-    if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 10) {
+    if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 100) {
       setGenerationErrors((prev) => ({
         ...prev,
-        [student.id]: 'Điểm Mock Test không hợp lệ. Vui lòng nhập số từ 0 đến 10 (ví dụ: 6.5, 7.25).',
+        [student.id]: 'Điểm Mock Test không hợp lệ. Vui lòng nhập số từ 0 đến 100 (ví dụ: 65, 72.5, 85.75).',
       }));
       return;
     }
@@ -315,7 +315,7 @@ export const Step2Students: React.FC<Step2StudentsProps> = ({
           const scoreNum = Number(student.score);
           const isScoreInvalid =
             student.score !== '' &&
-            (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 10);
+            (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 100);
 
           return (
             <div
@@ -346,7 +346,7 @@ export const Step2Students: React.FC<Step2StudentsProps> = ({
                       </span>
                       {student.score !== '' && !isScoreInvalid && (
                         <span className="px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 rounded-md border border-blue-200">
-                          Điểm: {student.score}/10
+                          Điểm: {student.score}/100
                         </span>
                       )}
                     </div>
@@ -402,16 +402,16 @@ export const Step2Students: React.FC<Step2StudentsProps> = ({
 
                     <div>
                       <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Điểm Mock Test (Thang 0–10): <span className="text-red-500">*</span>
+                        Điểm Mock Test (Thang 0–100): <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="number"
-                        step="0.1"
+                        step="any"
                         min="0"
-                        max="10"
+                        max="100"
                         value={student.score}
                         onChange={(e) => updateStudent(student.id, { score: e.target.value })}
-                        placeholder="Ví dụ: 6.5 hoặc 7.25..."
+                        placeholder="Ví dụ: 72.5 hoặc 85.75..."
                         className={`w-full px-3.5 py-2.5 bg-white border rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 ${
                           isScoreInvalid
                             ? 'border-red-400 focus:ring-red-400'
@@ -420,7 +420,7 @@ export const Step2Students: React.FC<Step2StudentsProps> = ({
                       />
                       {isScoreInvalid && (
                         <p className="mt-1 text-xs text-red-600">
-                          Điểm phải là số từ 0 đến 10 (chấp nhận số thập phân).
+                          Điểm phải là số từ 0 đến 100 (chấp nhận số thập phân).
                         </p>
                       )}
                     </div>

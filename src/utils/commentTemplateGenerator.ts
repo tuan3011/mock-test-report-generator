@@ -68,7 +68,7 @@ export function generateSmartQuickComment(student: StudentData): string {
     const skillText = skillStrengths.slice(0, 2).join(', ');
     if (score !== null && !isNaN(score)) {
       sentences.push(
-        `Điểm nổi bật của bạn nằm ở ${skillText}; kết quả bài thi Mock Test đạt ${score}/10 phản ánh khá rõ nét sự tiếp thu kiến thức của bạn.`
+        `Điểm nổi bật của bạn nằm ở ${skillText}; kết quả bài thi Mock Test đạt ${score}/100 phản ánh khá rõ nét sự tiếp thu kiến thức của bạn.`
       );
     } else {
       sentences.push(
@@ -76,17 +76,17 @@ export function generateSmartQuickComment(student: StudentData): string {
       );
     }
   } else if (score !== null && !isNaN(score)) {
-    if (score >= 7.0) {
+    if (score >= 70) {
       sentences.push(
-        `Kết quả bài thi Mock Test đạt ${score}/10 cho thấy bạn đã nắm khá vững các kiến thức trọng tâm.`
+        `Kết quả bài thi Mock Test đạt ${score}/100 cho thấy bạn đã nắm khá vững các kiến thức trọng tâm.`
       );
-    } else if (score >= 5.0) {
+    } else if (score >= 50) {
       sentences.push(
-        `Bài thi Mock Test đạt ${score}/10 cho thấy bạn đã hoàn thành ở mức cơ bản, tuy nhiên cần tiếp tục củng cố thêm kiến thức.`
+        `Bài thi Mock Test đạt ${score}/100 cho thấy bạn đã hoàn thành ở mức cơ bản, tuy nhiên cần tiếp tục củng cố thêm kiến thức.`
       );
     } else {
       sentences.push(
-        `Kết quả bài thi Mock Test đạt ${score}/10 cho thấy bạn còn nhiều phần kiến thức chưa thực sự vững vàng.`
+        `Kết quả bài thi Mock Test đạt ${score}/100 cho thấy bạn còn nhiều phần kiến thức chưa thực sự vững vàng.`
       );
     }
   }

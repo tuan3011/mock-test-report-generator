@@ -40,24 +40,28 @@ assert(
 );
 
 // ---------------------------------------------------------------------
-// TEST 2: Thang điểm Mock Test 0–10 và số thập phân
+// TEST 2: Thang điểm Mock Test 0–100 và số thập phân (Regression Tests)
 // ---------------------------------------------------------------------
-console.log('\n--- TEST GROUP 2: Thang điểm Mock Test & Kiểm thực số thập phân ---');
+console.log('\n--- TEST GROUP 2: Thang điểm Mock Test 0–100 & Kiểm thực số thập phân ---');
 function validateScore(score) {
   if (score === '' || score === undefined || score === null) return false;
   const num = Number(score);
-  return !isNaN(num) && num >= 0 && num <= 10;
+  return !isNaN(num) && num >= 0 && num <= 100;
 }
 
-assert(validateScore('6.5') === true, 'Điểm thập phân 6.5 hợp lệ');
-assert(validateScore('7.25') === true, 'Điểm thập phân 7.25 hợp lệ');
-assert(validateScore('8.75') === true, 'Điểm thập phân 8.75 hợp lệ');
-assert(validateScore('10') === true, 'Điểm 10 hợp lệ');
-assert(validateScore('0') === true, 'Điểm 0 hợp lệ');
-assert(validateScore('10.5') === false, 'Điểm 10.5 > 10 bị từ chối');
-assert(validateScore('-1') === false, 'Điểm âm bị từ chối');
-assert(validateScore('abc') === false, 'Điểm không phải số bị từ chối');
-assert(validateScore('') === false, 'Điểm rỗng bị từ chối');
+// Bảng kiểm thử hồi quy theo yêu cầu (Regression Cases):
+// 0: Valid, 45: Valid, 72.5: Valid, 85.75: Valid, 100: Valid
+// -1: Invalid, 100.01: Invalid, 105: Invalid
+assert(validateScore('0') === true, 'Điểm 0 hợp lệ (Valid)');
+assert(validateScore('45') === true, 'Điểm 45 hợp lệ (Valid)');
+assert(validateScore('72.5') === true, 'Điểm thập phân 72.5 hợp lệ (Valid)');
+assert(validateScore('85.75') === true, 'Điểm thập phân 85.75 hợp lệ (Valid)');
+assert(validateScore('100') === true, 'Điểm tối đa 100 hợp lệ (Valid)');
+assert(validateScore('-1') === false, 'Điểm âm -1 bị từ chối (Invalid)');
+assert(validateScore('100.01') === false, 'Điểm 100.01 > 100 bị từ chối (Invalid)');
+assert(validateScore('105') === false, 'Điểm 105 > 100 bị từ chối (Invalid)');
+assert(validateScore('abc') === false, 'Điểm chữ "abc" bị từ chối (Invalid)');
+assert(validateScore('') === false, 'Điểm rỗng bị từ chối (Invalid)');
 
 // ---------------------------------------------------------------------
 // TEST 3: Độc lập dữ liệu giữa các học viên (Thêm, Xóa, Không chia sẻ state)
@@ -67,7 +71,7 @@ let students = [
   {
     id: 's1',
     fullName: 'Nguyễn Văn An',
-    score: '7.5',
+    score: '72.5',
     evaluations: { 'att-concentration': 4, 'spk-pronunciation': 5 },
     aiComment: 'Bạn tập trung và phát âm tốt.',
     comment: 'Bạn tập trung và phát âm tốt.',
@@ -76,7 +80,7 @@ let students = [
   {
     id: 's2',
     fullName: 'Lê Bảo Bình',
-    score: '4.5',
+    score: '45',
     evaluations: { 'att-concentration': 2, 'hw-completion': 2 },
     aiComment: 'Bạn chưa tập trung và chưa làm đủ bài.',
     comment: 'Bạn chưa tập trung và chưa làm đủ bài.',
@@ -85,7 +89,7 @@ let students = [
   {
     id: 's3',
     fullName: 'Hoàng Minh Châu',
-    score: '9.0',
+    score: '85.75',
     evaluations: { 'att-diligence': 5, 'rdg-comprehension': 5 },
     aiComment: 'Bạn học rất xuất sắc.',
     comment: 'Bạn học rất xuất sắc.',
@@ -195,7 +199,7 @@ const fullyApprovedStudents = [
   {
     id: 's1',
     fullName: 'Nguyễn Văn An',
-    score: '7.5',
+    score: '72.5',
     evaluations: {},
     aiComment: '',
     comment: 'Bạn tiếp thu bài tốt, có tinh thần cầu tiến và tích cực phát biểu.',
@@ -204,7 +208,7 @@ const fullyApprovedStudents = [
   {
     id: 's2',
     fullName: 'Trần Minh Đức',
-    score: '5.0',
+    score: '45',
     evaluations: {},
     aiComment: '',
     comment: 'Bạn còn rụt rè, cần chăm chỉ làm bài tập về nhà hơn để cải thiện kỹ năng nghe.',
@@ -213,7 +217,7 @@ const fullyApprovedStudents = [
   {
     id: 's3',
     fullName: 'Vũ Thảo My',
-    score: '8.5',
+    score: '85.75',
     evaluations: {},
     aiComment: '',
     comment: 'Bạn học rất chăm ngoan, nắm chắc cấu trúc và phản xạ nhanh.',
@@ -288,9 +292,9 @@ assert(verifyXml.includes(': Listening'), 'Kỹ năng phụ trách chính xác')
 assert(verifyXml.includes('Nguyễn Văn An'), 'Chứa học viên 1: Nguyễn Văn An');
 assert(verifyXml.includes('Trần Minh Đức'), 'Chứa học viên 2: Trần Minh Đức');
 assert(verifyXml.includes('Vũ Thảo My'), 'Chứa học viên 3: Vũ Thảo My');
-assert(verifyXml.includes('7.5'), 'Chứa điểm 7.5');
-assert(verifyXml.includes('5.0'), 'Chứa điểm 5.0');
-assert(verifyXml.includes('8.5'), 'Chứa điểm 8.5');
+assert(verifyXml.includes('72.5'), 'Chứa điểm 72.5');
+assert(verifyXml.includes('45'), 'Chứa điểm 45');
+assert(verifyXml.includes('85.75'), 'Chứa điểm 85.75');
 assert(verifyXml.includes('Giáo viên đã trao đổi trực tiếp với từng học viên'), 'Chứa nội dung Mục 2');
 assert(verifyXml.includes('Đề xuất trung tâm tiếp tục duy trì hoạt động'), 'Chứa nội dung Mục 3');
 assert(verifyXml.includes('1. Học viên cần quan tâm'), 'Giữ nguyên tiêu đề Mục 1');
@@ -302,13 +306,13 @@ fs.unlinkSync(testFilename);
 console.log('[CLEANUP] Đã dọn dẹp tệp test tạm thời.');
 
 // ---------------------------------------------------------------------
-// TEST 8: Chuẩn hóa văn phong sư phạm - Bắt buộc xưng hô "bạn" (Không dùng con/em)
+// TEST 8: Chuẩn hóa văn phong sư phạm - Bắt buộc xưng hô "bạn" (Không dùng con/em) & Thang điểm 100
 // ---------------------------------------------------------------------
 console.log('\n--- TEST GROUP 8: Chuẩn hóa văn phong báo cáo giáo viên & Xưng hô "bạn" ---');
 const testStd = {
   id: 'std_test',
   fullName: 'Phạm Nhật Nam',
-  score: '7.5',
+  score: '85.75',
   evaluations: {
     'att-concentration': 5,
     'spk-pronunciation': 4,
@@ -331,13 +335,58 @@ assert(
   'Tuyệt đối KHÔNG sử dụng xưng hô "con" hoặc "em"'
 );
 assert(
-  generatedQuickComment.includes('7.5/10'),
-  'Bảo toàn điểm số Mock Test 7.5/10 không bị biến đổi'
+  generatedQuickComment.includes('85.75/100'),
+  'Bảo toàn điểm số Mock Test 85.75/100 trên thang 100 không bị biến đổi'
 );
 assert(
   generatedQuickComment.includes('Thời gian tới, bạn nên') || generatedQuickComment.includes('tiến bộ đáng ghi nhận'),
   'Tuân thủ cấu trúc khuyến nghị và văn phong sư phạm PRE-5/PRE-7'
 );
+
+// ---------------------------------------------------------------------
+// TEST 9: Kiểm thực điểm số trong docxGenerator (validateReportForExport)
+// ---------------------------------------------------------------------
+console.log('\n--- TEST GROUP 9: Kiểm thực điểm số 0-100 trong validateReportForExport ---');
+const invalidScoreStudents = [
+  {
+    id: 'inv_s1',
+    fullName: 'Đoàn Hải Long',
+    score: '105', // Vượt quá 100!
+    evaluations: {},
+    aiComment: '',
+    comment: 'Nhận xét',
+    status: 'APPROVED',
+  },
+];
+const checkInvalidScore = validateReportForExport(metadata, invalidScoreStudents, approvedSec2, approvedSec3);
+assert(checkInvalidScore.isValid === false, 'Điểm 105 bị chặn khi xuất báo cáo');
+assert(
+  checkInvalidScore.errors.some((e) => e.includes('105') && e.includes('Phải từ 0 đến 100')),
+  'Thông báo lỗi nêu rõ điểm 105 không hợp lệ và thang điểm 0 đến 100'
+);
+
+const validBoundaryStudents = [
+  {
+    id: 'b1',
+    fullName: 'Học viên Điểm 0',
+    score: '0',
+    evaluations: {},
+    aiComment: '',
+    comment: 'Bạn cần cố gắng nhiều hơn.',
+    status: 'APPROVED',
+  },
+  {
+    id: 'b2',
+    fullName: 'Học viên Điểm 100',
+    score: '100',
+    evaluations: {},
+    aiComment: '',
+    comment: 'Bạn đạt kết quả xuất sắc.',
+    status: 'APPROVED',
+  },
+];
+const checkBoundaryScores = validateReportForExport(metadata, validBoundaryStudents, approvedSec2, approvedSec3);
+assert(checkBoundaryScores.isValid === true, 'Điểm biên 0 và 100 hoàn toàn hợp lệ khi xuất báo cáo');
 
 // ---------------------------------------------------------------------
 // KẾT QUẢ KIỂM THỬ

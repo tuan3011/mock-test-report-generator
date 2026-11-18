@@ -77,8 +77,8 @@ export function validateReportForExport(
         errors.push(`Mục 1: Học viên "${studentLabel}" chưa nhập điểm Mock Test.`);
       } else {
         const scoreNum = Number(student.score);
-        if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 10) {
-          errors.push(`Mục 1: Điểm Mock Test của "${studentLabel}" không hợp lệ (${student.score}). Phải từ 0 đến 10.`);
+        if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 100) {
+          errors.push(`Mục 1: Điểm Mock Test của "${studentLabel}" không hợp lệ (${student.score}). Phải từ 0 đến 100.`);
         }
       }
 

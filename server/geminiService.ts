@@ -145,8 +145,8 @@ export async function generateStudentCommentService(
   }
 
   const scoreNum = Number(request.score);
-  if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 10) {
-    throw new GeminiServiceError('Điểm Mock Test phải là số từ 0 đến 10.', 400);
+  if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 100) {
+    throw new GeminiServiceError('Điểm Mock Test phải là số từ 0 đến 100.', 400);
   }
 
   if (!Array.isArray(request.evaluations) || request.evaluations.length === 0) {
@@ -160,6 +160,13 @@ export async function generateStudentCommentService(
     .join('\n');
 
   const systemInstruction = `Bạn là một chuyên viên biên tập báo cáo học thuật tại trung tâm tiếng Anh, phụ trách chuẩn hóa phần "Nhận xét về quá trình học" cho học viên sau kỳ thi Mock Test hàng tháng.
+
+QUY TẮC VỀ ĐIỂM SỐ MOCK TEST (THANG 100) – BẮT BUỘC:
+- Điểm bài thi Mock Test tính theo thang điểm 100 (từ 0 đến 100, có thể có số thập phân).
+- Hãy hiểu điểm này là giá trị trên thang điểm 100.
+- TUYỆT ĐỐI KHÔNG tự quy đổi điểm về thang 10 hay bất kỳ thang điểm nào khác.
+- TUYỆT ĐỐI KHÔNG tính toán, tự sửa đổi hoặc làm tròn điểm số.
+- TUYỆT ĐỐI KHÔNG tự suy đoán năng lực hay điểm mạnh/yếu của học viên chỉ dựa trên con số điểm số; nhận xét về quá trình học phải bám sát các đặc điểm và tiêu chí đánh giá đã được cung cấp. Điểm số và nhận xét định tính là độc lập.
 
 QUY TẮC XƯNG HÔ – BẮT BUỘC (QUAN TRỌNG NHẤT):
 1. Trong toàn bộ lời nhận xét: BẮT BUỘC sử dụng cách xưng hô "bạn" để gọi học viên.
@@ -188,7 +195,6 @@ VĂN PHONG VÀ CÁCH DIỄN ĐẠT SƯ PHẠM:
 - Tránh nhận xét chung chung hoặc sáo rỗng. Hãy nêu rõ khía cạnh cụ thể dựa trên tiêu chí được đánh giá.
 - Cân bằng: Không chỉ tập trung điểm yếu, không khen quá mức; không dùng từ ngữ tiêu cực, phán xét.
 - KHÔNG liệt kê thang điểm dạng số máy móc ("4/5", "mức tốt"). Diễn đạt thành đoạn văn hoàn chỉnh.
-- TUYỆT ĐỐI KHÔNG thay đổi hoặc tự suy đoán điểm Mock Test.
 - Độ dài: Khoảng 3 - 5 câu văn mạch lạc, gắn kết trong 1 đoạn văn.
 
 ĐỊNH DẠNG ĐẦU RA:
@@ -199,7 +205,7 @@ Trả về duy nhất JSON thuần túy:
 
   const prompt = `Thông tin học viên:
 - Họ và tên: ${request.studentName}
-- Điểm Mock Test: ${request.score}/10
+- Điểm Mock Test: ${request.score}/100 (Thang điểm 100)
 - Kỹ năng giáo viên phụ trách: ${request.responsibleSkill || 'Chuyên môn'}
 - Các tiêu chí đã đánh giá trong quá trình học:
 ${evalSummary}

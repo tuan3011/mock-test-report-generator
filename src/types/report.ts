@@ -39,7 +39,7 @@ export interface ReportMetadata {
 export interface StudentData {
   id: string;
   fullName: string;
-  score: string; // 0 to 10 scale (accepts decimal: e.g. "6.5", "7.25")
+  score: string; // 0 to 100 scale (accepts decimal: e.g. "65", "72.5", "85.75")
   evaluations: Record<string, PerformanceLevel>; // item id -> level (1-5)
   aiComment: string; // AI generated comment
   comment: string; // Current teacher-edited / active comment
